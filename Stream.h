@@ -76,6 +76,26 @@ public:
         return std::accumulate(v.begin(), v.end(), initial, reduceFunc);
     }
 
+    int count(){
+        return compute().size();
+    }
+
+    bool anyMatch(function<bool(const ElemType*)> anyFunc){
+        vector<ElemType*> v = compute();
+        return std::any_of(v.begin(), v.end(), anyFunc);
+    }
+
+    bool allMatch(function<bool(const ElemType*)> anyFunc){
+        vector<ElemType*> v = compute();
+        return std::all_of(v.begin(), v.end(), anyFunc);
+    }
+
+    const ElemType* findFirst(function<bool(const ElemType*)> findFunc){
+        vector<ElemType*> v = compute();
+        auto it = std::find(v.begin(), v.end(), findFunc);
+        return it != v.end() ? *it : nullptr;
+    }
+
     Stream filter(std::function<bool(const ElemType*)> filterFunc){
         return FilterStream<ElemType>(*this, filterFunc);
     }
@@ -92,6 +112,7 @@ public:
     Stream distinct(){
         return distinct([](const ElemType* a, const ElemType* b){return a==b;});
     }
+
 
     Stream() = default;
 private:
