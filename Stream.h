@@ -6,11 +6,24 @@
 #define OOP5_STREAM_H
 
 #include <vector>
+#include <map>
 
-template <typename T>
+using std::vector, std::map;
+template <typename ElemType>
 class Stream{
+    vector<ElemType> initialVector;
 public:
-//    static of()
+    template <typename Container>
+    static Stream of(Container& container){
+        return Stream(vector<ElemType>(container.begin(), container.end()));
+    }
+
+//    template <typename KeyType>
+//    static Stream of<map<KeyType, ElemType>> (map<KeyType, ElemType>& container){
+//        return Stream(vector<ElemType>(container.begin()))
+//    }
+private:
+    Stream(vector<ElemType> initialVector): initialVector(initialVector){};
 };
 
 #endif //OOP5_STREAM_H
