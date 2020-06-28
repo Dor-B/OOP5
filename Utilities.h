@@ -89,4 +89,20 @@ template<typename Val1, typename Val2>
 struct ListsAdd<List<Val1>, List<Val2>>{
     typedef List<Int<Val1::value + Val2::value>> list;
 };
+
+template<typename Row1 ,typename Row2>
+struct VectorMult{
+    static_assert(Row1::size == Row2::size, "Not the same list size!");
+    typedef typename Row1::head first1;
+    typedef typename Row2::head first2;
+    typedef typename Row1::next tail1;
+    typedef typename Row2::next tail2;
+    typedef typename VectorMult<tail1, tail2>::res MultAndAddNext;
+    typedef Int<first1::value * first2::value + MultAndAddNext::value> res;
+};
+
+template<typename Val1, typename Val2>
+struct VectorMult<List<Val1>, List<Val2>>{
+    typedef Int<Val1::value * Val2::value> res;
+};
 #endif //OOP5_UTILITIES_H
