@@ -35,6 +35,9 @@ template <typename OldType, typename NewType>
 class MapStream;
 
 template <typename ElemType>
+class SortedStream;
+
+template <typename ElemType>
 class Stream{
 public:
     std::function<vector<ElemType*>()> compute;
@@ -113,6 +116,9 @@ public:
         return distinct([](const ElemType* a, const ElemType* b){return a==b;});
     }
 
+    Stream sorted(std::function<bool( ElemType*,  ElemType*)> sortingFunc = ([](ElemType* e1, ElemType* e2)->bool{return *e1<*e2;}) ){
+        return SortedStream<ElemType>(*this, sortingFunc);
+    }
 
     Stream() = default;
 private:
@@ -163,5 +169,20 @@ public:
     }
 };
 
+template <typename ElemType>
+class SortedStream: public Stream<ElemType> {
+public:
+    SortedStream(Stream<ElemType>& oldStream, std::function<bool( ElemType*, ElemType*)> sortFunc)
+            : Stream<ElemType>(){
+        this->compute = [oldStream, sortFunc]()-> vector<ElemType*>{
+            vector<ElemType*> old = oldStream.compute();
+            vector<ElemType*> newV;
+            for (int i=0; i<old.size(); i++)
+                newV.push_back(old[i]);
+            std::sort (newV.begin(), newV.end(), sortFunc);
+            return newV;
+        };
+    }
+};
 
 #endif //OOP5_STREAM_H
