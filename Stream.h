@@ -113,7 +113,7 @@ public:
     }
 
     Stream distinct(){
-        return distinct([](const ElemType* a, const ElemType* b){return a==b;});
+        return distinct([](const ElemType* a, const ElemType* b){return *a==*b;});
     }
 
     Stream sorted(std::function<bool( ElemType*,  ElemType*)> sortingFunc = ([](ElemType* e1, ElemType* e2)->bool{return *e1<*e2;}) ){
@@ -163,7 +163,8 @@ public:
         this->compute = [oldStream, distinctFunc]() -> vector<ElemType*>{
             vector<ElemType*> old = oldStream.compute();
             vector<ElemType*> newV;
-            std::unique_copy(old.begin(), old.end(), std::back_inserter(newV), distinctFunc);
+            newV = std::unique(old.begin(), old.end(), std::back_inserter(newV), distinctFunc);
+
             return newV;
         };
     }
