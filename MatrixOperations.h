@@ -27,4 +27,21 @@ struct Add<List<Row1>, List<Row2>>{
     typedef typename ListsAdd<Row1, Row2>::list firstRow;
     typedef List<firstRow> result;
 };
+
+/**
+ * | --x1-- |   |     |    | x1*M |
+ * | --x2-- | * |  M  | =  | x2*M |
+ * | --x3-- |   |     |    | x3*M |
+ */
+
+template <typename Row, typename MatTranspose>
+struct MultRowByMatTranspose{
+
+};
+
+template <typename Row, typename RowOfMat>
+struct MultRowByMatTranspose<Row, List<RowOfMat>{
+
+};
+
 #endif //OOP5_MATRIXOPERATIONS_H
