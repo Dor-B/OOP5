@@ -9,12 +9,15 @@
 #include <map>
 #include <functional>
 #include <algorithm>
+#include <numeric>
 
 using std::vector;
 using std::map;
 using std::function;
 using std::remove_if;
 using std::transform;
+using std::unique_copy;
+using std::accumulate;
 
 using std::cout;
 using std::endl;
@@ -24,6 +27,9 @@ class Stream;
 
 template <typename ElemType>
 class FilterStream;
+
+template <typename ElemType>
+class DistinctStream;
 
 template <typename OldType, typename NewType>
 class MapStream;
@@ -52,6 +58,24 @@ public:
 //        });
 //    }
 
+    template<typename Container>
+    Container collect(){
+        vector<ElemType*> v = compute();
+        return Container(v.begin(), v.end());
+    }
+
+    void forEach(function<void(const ElemType*)> forFunc){
+        vector<ElemType*> v = compute();
+        for(auto p: v){
+            forFunc(p);
+        }
+    }
+
+    const ElemType* reduce(const ElemType* initial,  function<ElemType*(const ElemType*, const ElemType*)> reduceFunc){
+        vector<ElemType*> v = compute();
+        return std::accumulate(v.begin(), v.end(), initial, reduceFunc);
+    }
+
     Stream filter(std::function<bool(const ElemType*)> filterFunc){
         return FilterStream<ElemType>(*this, filterFunc);
     }
@@ -60,6 +84,15 @@ public:
     Stream<NewType> map(std::function<NewType*(const ElemType*)> mapFunc){
         return MapStream<ElemType, NewType>(*this, mapFunc);
     }
+
+    Stream distinct(function<bool(const ElemType*, const ElemType*)> distinctFunc){
+        return DistinctStream<ElemType>(*this, distinctFunc);
+    }
+
+    Stream distinct(){
+        return distinct([](const ElemType* a, const ElemType* b){return a==b;});
+    }
+
     Stream() = default;
 private:
     Stream(std::function<vector<ElemType*>()> compute): compute(compute){};
@@ -95,5 +128,19 @@ public:
         };
     }
 };
+
+template <typename ElemType>
+class DistinctStream: public Stream<ElemType> {
+public:
+    DistinctStream(Stream<ElemType>& oldStream, function<bool(const ElemType*, const ElemType*)> distinctFunc): Stream<ElemType>(){
+        this->compute = [oldStream, distinctFunc]() -> vector<ElemType*>{
+            vector<ElemType*> old = oldStream.compute();
+            vector<ElemType*> newV;
+            std::unique_copy(old.begin(), old.end(), std::back_inserter(newV), distinctFunc);
+            return newV;
+        };
+    }
+};
+
 
 #endif //OOP5_STREAM_H

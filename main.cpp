@@ -12,10 +12,13 @@ int main() {
 
 //    Stream<int> s = Stream<int>::of(intPointerVector).filter([](const int* val) { return (*val) > 2; });
     auto s = Stream<int>::of(intPointerVector).map<int>([](const int* val){ return new int(-*val); })
-            .filter([](const int* val) { return (*val) < -2; });
-    for(auto p : s.compute()){
+            .filter([](const int* val) { return (*val) < -2; })
+            .distinct();
+    for(auto p : s.collect<vector<int*>>()){
         cout << *p << endl;
     }
+    int x = 0;
+    cout << *s.reduce(&x, [](const int* a,const int*b){ return new int(*a + *b);})<< endl;
 //    std::cout << "Hello, World!" << std::endl;
 ////    typedef X<> x;
 //    typedef List<Int<1>, Int<2>, Int<3>> l1;
