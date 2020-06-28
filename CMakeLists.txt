@@ -3,4 +3,4 @@ project(oop5)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(oop5 main.cpp ListT.h Utilities.h MatrixOperations.h)
+add_executable(oop5 Part1Examples.cpp ListT.h Utilities.h MatrixOperations.h)
