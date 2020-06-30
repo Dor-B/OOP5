@@ -42,24 +42,24 @@ class Stream{
 public:
     std::function<vector<ElemType*>()> compute;
 public:
+    template <typename KeyType, typename DataType>
+    static Stream<DataType> of(map<KeyType, DataType*>& container){
+        return getInstance<DataType>([container]() -> vector<DataType*> {
+            vector <DataType*> v;
+            for(auto& it : container) {
+                v.push_back( it.second );
+            }
+            return v;
+        });
+    }
+
     template <typename Container>
-    static Stream of(Container& container){
+    static Stream<ElemType> of(Container& container){
         return Stream<ElemType>(
         [container]() -> vector<ElemType*> {
             return vector<ElemType*>(container.begin(), container.end());
         });
     }
-
-//    template <typename KeyType>
-//    static Stream of(map<KeyType, ElemType>& container){
-//        return Stream<ElemType>([container]() -> vector<ElemType*> {
-//            vector <ElemType> v;
-//            for(typename map<KeyType, ElemType>::iterator it = container.begin(); it != container.end(); ++it ) {
-//                v.push_back( it->second );
-//            }
-//            return v;
-//        });
-//    }
 
     template<typename Container>
     Container collect(){
@@ -67,7 +67,7 @@ public:
         return Container(v.begin(), v.end());
     }
 
-    void forEach(function<void(const ElemType*)> forFunc){
+    void forEach(function<void(ElemType*)> forFunc){
         vector<ElemType*> v = compute();
         for(auto p: v){
             forFunc(p);
@@ -123,6 +123,13 @@ public:
     Stream() = default;
 private:
     Stream(std::function<vector<ElemType*>()> compute): compute(compute){};
+
+    template <typename NewType>
+    static Stream<NewType> getInstance(std::function<vector<NewType*>()> compute){
+        Stream<NewType> s = Stream<NewType>();
+        s.compute = compute;
+        return s;
+    }
 };
 
 template <typename ElemType>
