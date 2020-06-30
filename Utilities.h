@@ -35,6 +35,15 @@ struct GetNext< List<T, TT... > > {
     typedef List<TT...> next;
 };
 
+struct EmptyList{
+    static constexpr int size = 0;
+};
+
+template<typename T>
+struct GetNext< List<T> > {
+    typedef EmptyList next;
+};
+
 template<typename T, typename U>
 struct PrependList {};
 
