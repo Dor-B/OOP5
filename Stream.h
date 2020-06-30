@@ -162,9 +162,13 @@ public:
     DistinctStream(Stream<ElemType>& oldStream, function<bool(const ElemType*, const ElemType*)> distinctFunc): Stream<ElemType>(){
         this->compute = [oldStream, distinctFunc]() -> vector<ElemType*>{
             vector<ElemType*> old = oldStream.compute();
-            vector<ElemType*> newV;
-            newV = std::unique(old.begin(), old.end(), std::back_inserter(newV), distinctFunc);
-
+            vector<ElemType*> newV(old);
+//            for(auto p:newV){
+//                cout << *p << endl;
+//            }
+//            cout << "----------" << endl;
+            auto end = std::unique(newV.begin(), newV.end(), distinctFunc);
+            newV.resize(std::distance(newV.begin(), end));
             return newV;
         };
     }
