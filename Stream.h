@@ -22,6 +22,7 @@ using std::accumulate;
 using std::cout;
 using std::endl;
 
+/// declaration hack
 template <typename ElemType>
 class Stream;
 
@@ -37,11 +38,13 @@ class MapStream;
 template <typename ElemType>
 class SortedStream;
 
+
 template <typename ElemType>
 class Stream{
 public:
     std::function<vector<ElemType*>()> compute;
 public:
+    /// special of for maps, uses values only
     template <typename KeyType, typename DataType>
     static Stream<DataType> of(map<KeyType, DataType*>& container){
         return getInstance<DataType>([container]() -> vector<DataType*> {
@@ -76,7 +79,16 @@ public:
 
     const ElemType* reduce(const ElemType* initial,  function<ElemType*(const ElemType*, const ElemType*)> reduceFunc){
         vector<ElemType*> v = compute();
-        return std::accumulate(v.begin(), v.end(), initial, reduceFunc);
+        // fold as described by pdf
+        bool isFirst = true;
+        for(auto elem :v){
+            if(isFirst)
+                initial = reduceFunc(initial, elem);
+            else
+                initial = reduceFunc(elem, initial);
+            isFirst = false;
+        }
+        return initial;
     }
 
     int count(){
@@ -122,8 +134,10 @@ public:
 
     Stream() = default;
 private:
+    /// create Stream of ElemType
     Stream(std::function<vector<ElemType*>()> compute): compute(compute){};
 
+    /// create Stream of generic type
     template <typename NewType>
     static Stream<NewType> getInstance(std::function<vector<NewType*>()> compute){
         Stream<NewType> s = Stream<NewType>();
@@ -132,6 +146,7 @@ private:
     }
 };
 
+/// class for lazy updating computing function according to filter
 template <typename ElemType>
 class FilterStream: public Stream<ElemType> {
 public:
@@ -145,7 +160,7 @@ public:
         };
     }
 };
-
+/// class for lazy updating computing function according to map
 template <typename OldType, typename NewType>
 class MapStream: public Stream<NewType> {
 public:
@@ -153,16 +168,12 @@ public:
         this->compute = [oldStream, mapFunc]() -> vector<NewType*>{
             vector<OldType*> old = oldStream.compute();
             vector<NewType*> newV;
-//            for(auto p:old){
-//                cout << *p << endl;
-//            }
-//            cout << "----------" << endl;
             transform(old.begin(), old.end(), std::back_inserter(newV), mapFunc);
             return newV;
         };
     }
 };
-
+/// class for lazy updating computing function according to distinct
 template <typename ElemType>
 class DistinctStream: public Stream<ElemType> {
 public:
@@ -170,17 +181,15 @@ public:
         this->compute = [oldStream, distinctFunc]() -> vector<ElemType*>{
             vector<ElemType*> old = oldStream.compute();
             vector<ElemType*> newV(old);
-//            for(auto p:newV){
-//                cout << *p << endl;
-//            }
-//            cout << "----------" << endl;
+            /// remove duplicates (remains undefined)
             auto end = std::unique(newV.begin(), newV.end(), distinctFunc);
+            /// remove undefineds
             newV.resize(std::distance(newV.begin(), end));
             return newV;
         };
     }
 };
-
+/// class for lazy updating computing function according to sorted
 template <typename ElemType>
 class SortedStream: public Stream<ElemType> {
 public:

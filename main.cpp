@@ -6,14 +6,16 @@
 using namespace std;
 class A{};
 int main() {
-    int array[10] = { 1, 2, 2, 3, 4, 6, 5, 7, 8, 9 };
+    int N = 10;
+    int array[N] = {9,9,7,7,7,8,1,2,3,4 };
     std::vector<int*> intPointerVector;
-    for(int i = 0 ; i < 10 ; i++) intPointerVector.push_back(array + i);
+    for(int i = 0 ; i < N; i++) intPointerVector.push_back(array + i);
 
 //    Stream<int> s = Stream<int>::of(intPointerVector).filter([](const int* val) { return (*val) > 2; });
     auto s = Stream<int>::of(intPointerVector).map<int>([](const int* val){ return new int(-*val); })
             .filter([](const int* val) { return (*val) < -1; })
-            .distinct();
+            .distinct()
+            .sorted();
     for(auto p : s.collect<vector<int*>>()){
         cout << *p << endl;
     }

@@ -17,10 +17,13 @@ struct Add{
     typedef typename Mat1::head firstMat1Row;
     typedef typename Mat2::head firstMat2Row;
 
+    /// calculate add of first row
     typedef typename ListsAdd<firstMat1Row, firstMat2Row>::list firstRow;
 
+    /// recursively calculate add of next rows
     typedef typename Add<nextMat1Rows, nextMat2Rows>::result BellowRows;
 
+    /// add the first row to the next row
     typedef typename PrependList<firstRow, BellowRows>::list result;
 };
 
@@ -31,9 +34,14 @@ struct Add<List<Row1>, List<Row2>>{
 };
 
 /**
- * | --x1-- |   |     |    | x1*M |
- * | --x2-- | * |  M  | =  | x2*M |
- * | --x3-- |   |     |    | x3*M |
+ * //////////// How we multiply A*M //////////////
+ *
+ *       | --x1-- |   |     |    | x1*M |
+ * A*M = | --x2-- | * |  M  | =  | x2*M |
+ *       | --x3-- |   |     |    | x3*M |
+ *
+ * 1. MultRowByMatTranspose():  do xi * M
+ * 2. _Multiply():              combine all xi*M rows
  */
 
 template <typename Row, typename MatTranspose>
@@ -60,10 +68,13 @@ struct _Multiply{
     typedef typename Mat1::head firstMat1Row;
     typedef typename Mat1::next nextMat1Row;
 
+    /// calculate first row (mat1 first row * mat2 transpose)
     typedef typename MultRowByMatTranspose<firstMat1Row, Mat2Transpose>::res firstRow;
 
+    /// recursively calculate next rows
     typedef typename _Multiply<nextMat1Row, Mat2Transpose>::result BellowRows;
 
+    /// combine all rows into result
     typedef typename PrependList<firstRow, BellowRows>::list result;
 };
 

@@ -5,7 +5,6 @@
 #ifndef OOP5_UTILITIES_H
 #define OOP5_UTILITIES_H
 
-#include "ListT.h"
 template <int x>
 struct Int{
     static constexpr int value = x;
@@ -89,7 +88,7 @@ template<typename Val1, typename Val2>
 struct ListsAdd<List<Val1>, List<Val2>>{
     typedef List<Int<Val1::value + Val2::value>> list;
 };
-
+/// scalar multiply (x1,x2,..xn)*(u1,u2,..un)=(x1*u1 +  x2*u2 + ... + xn*un)
 template<typename Row1 ,typename Row2>
 struct VectorMult{
     static_assert(Row1::size == Row2::size, "Not the same list size!");
