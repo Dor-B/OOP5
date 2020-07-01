@@ -36,7 +36,7 @@ struct Add<List<Row1>, List<Row2>>{
 /**
  * //////////// How we multiply A*M //////////////
  *
- *       | --x1-- |   |     |    | x1*M |
+ *       | --x1-- |   |     |    | x=*M |
  * A*M = | --x2-- | * |  M  | =  | x2*M |
  *       | --x3-- |   |     |    | x3*M |
  *

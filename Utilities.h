@@ -16,14 +16,18 @@ struct GetFirst {};
 template<typename T>
 struct GetNext {};
 
+struct EmptyList{
+    static constexpr int size = 0;
+};
+
+
+
 template<typename... TT>
 struct List {
     static constexpr int size = sizeof...(TT);
     typedef typename GetFirst<List<TT...>>::head head;
     typedef typename GetNext<List<TT...>>::next next;
 };
-
-
 
 template<typename T, typename... TT>
 struct GetFirst< List<T, TT... > > {
@@ -33,10 +37,6 @@ struct GetFirst< List<T, TT... > > {
 template<typename T, typename... TT>
 struct GetNext< List<T, TT... > > {
     typedef List<TT...> next;
-};
-
-struct EmptyList{
-    static constexpr int size = 0;
 };
 
 template<typename T>
@@ -51,19 +51,38 @@ template<typename T, typename... TT>
 struct PrependList<T, List<TT... > > {
     typedef List<T, TT... > list;
 };
+//
+//template<int n,typename T, typename ... TT>
+//struct ListGet {};
+//
+//template <typename T, typename ... TT>
+//struct ListGet<0, List<T, TT... >>{
+//    typedef T value;
+//};
+//
+//template<int n,typename T, typename... TT>
+//struct ListGet<n, List<T, TT... > > {
+//    typedef typename ListGet<n-1, List<TT...>>::value value;
+//};
+//
+//template<>
+//struct ListGet<0, List< > > {
+//    typedef  EmptyList value;
+//};
 
-template<int n, typename ... TT>
+template<int n,typename T, typename ... TT>
 struct ListGet {};
 
 template <typename T, typename ... TT>
 struct ListGet<0, List<T, TT...>>{
-    typedef typename List<T, TT...>::head value;
+    typedef T value;
 };
 
-template<int n,typename T, typename... TT>
+template<int n, typename T, typename... TT>
 struct ListGet<n, List<T, TT... > > {
     typedef typename ListGet<n-1, List<TT...>>::value value;
 };
+
 
 template<int n, typename ToAdd ,typename T, typename ... TT>
 struct ListSet {};
@@ -90,7 +109,7 @@ struct ListsAdd{
     typedef typename Row1::next tail1;
     typedef typename Row2::next tail2;
     typedef typename ListsAdd<tail1, tail2 >::list AddNext;
-    typedef List<Int<first1::value + first2::value>, AddNext> list;
+    typedef typename PrependList<Int<first1::value + first2::value>, AddNext>::list list;
 };
 
 template<typename Val1, typename Val2>
